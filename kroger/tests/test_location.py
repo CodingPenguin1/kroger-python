@@ -8,6 +8,7 @@ from kroger.location import (
     DayHours,
     HoursOfOperation,
     GeolocationCoordinates,
+    convert_locations_dict_to_objects,
 )
 
 
@@ -22,7 +23,7 @@ class TestLocationAddress(unittest.TestCase):
             "city": "Cincinnati",
             "state": "OH",
             "zipCode": "45202",
-            "county": "Hamilton"
+            "county": "Hamilton",
         }
 
         address = LocationAddress.from_dict(address_dict)
@@ -40,7 +41,7 @@ class TestLocationAddress(unittest.TestCase):
             "addressLine1": "1234 Main St",
             "city": "Cincinnati",
             "state": "OH",
-            "zipCode": "45202"
+            "zipCode": "45202",
         }
 
         address = LocationAddress.from_dict(address_dict)
@@ -58,10 +59,7 @@ class TestLocationDepartment(unittest.TestCase):
 
     def test_from_dict(self):
         """Test creating a LocationDepartment from a dictionary."""
-        dept_dict = {
-            "departmentId": "123",
-            "name": "Pharmacy"
-        }
+        dept_dict = {"departmentId": "123", "name": "Pharmacy"}
 
         dept = LocationDepartment.from_dict(dept_dict)
 
@@ -83,11 +81,7 @@ class TestDayHours(unittest.TestCase):
 
     def test_from_dict_regular_hours(self):
         """Test creating DayHours with regular open/close times."""
-        hours_dict = {
-            "open": "08:00",
-            "close": "22:00",
-            "open24": False
-        }
+        hours_dict = {"open": "08:00", "close": "22:00", "open24": False}
 
         day_hours = DayHours.from_dict(hours_dict)
 
@@ -97,9 +91,7 @@ class TestDayHours(unittest.TestCase):
 
     def test_from_dict_24hr(self):
         """Test creating DayHours with 24-hour operations."""
-        hours_dict = {
-            "open24": True
-        }
+        hours_dict = {"open24": True}
 
         day_hours = DayHours.from_dict(hours_dict)
 
@@ -109,11 +101,7 @@ class TestDayHours(unittest.TestCase):
 
     def test_from_dict_invalid_times(self):
         """Test handling invalid time strings."""
-        hours_dict = {
-            "open": "invalid",
-            "close": "also invalid",
-            "open24": False
-        }
+        hours_dict = {"open": "invalid", "close": "also invalid", "open24": False}
 
         day_hours = DayHours.from_dict(hours_dict)
 
@@ -134,7 +122,7 @@ class TestHoursOfOperation(unittest.TestCase):
             "thursday": {"open": "08:00", "close": "22:00", "open24": False},
             "friday": {"open": "08:00", "close": "23:00", "open24": False},
             "saturday": {"open": "08:00", "close": "23:00", "open24": False},
-            "sunday": {"open": "09:00", "close": "21:00", "open24": False}
+            "sunday": {"open": "09:00", "close": "21:00", "open24": False},
         }
 
         hours = HoursOfOperation.from_dict(hours_dict)
@@ -150,7 +138,7 @@ class TestHoursOfOperation(unittest.TestCase):
         hours_dict = {
             "monday": {"open": "08:00", "close": "22:00", "open24": False},
             "friday": {"open": "08:00", "close": "23:00", "open24": False},
-            "sunday": {"open24": True}
+            "sunday": {"open24": True},
         }
 
         hours = HoursOfOperation.from_dict(hours_dict)
@@ -170,10 +158,7 @@ class TestGeolocationCoordinates(unittest.TestCase):
 
     def test_from_dict_numeric(self):
         """Test creating GeolocationCoordinates with numeric values."""
-        coord_dict = {
-            "latitude": 39.1031,
-            "longitude": -84.5120
-        }
+        coord_dict = {"latitude": 39.1031, "longitude": -84.5120}
 
         coords = GeolocationCoordinates.from_dict(coord_dict)
 
@@ -182,10 +167,7 @@ class TestGeolocationCoordinates(unittest.TestCase):
 
     def test_from_dict_string(self):
         """Test creating GeolocationCoordinates with string values."""
-        coord_dict = {
-            "latitude": "39.1031",
-            "longitude": "-84.5120"
-        }
+        coord_dict = {"latitude": "39.1031", "longitude": "-84.5120"}
 
         coords = GeolocationCoordinates.from_dict(coord_dict)
 
@@ -218,18 +200,17 @@ class TestLocation(unittest.TestCase):
                 "city": "Cincinnati",
                 "state": "OH",
                 "zipCode": "45202",
-                "county": "Hamilton"
+                "county": "Hamilton",
             },
             "geolocation": {
-                "latLng": {
-                    "latitude": 39.1031,
-                    "longitude": -84.5120
-                }
+                "latitude": 39.1031,
+                "longitude": -84.5120,
+                "latLng": "39.1031,-84.5120",
             },
             "phone": "555-123-4567",
             "departments": [
                 {"departmentId": "1", "name": "Pharmacy"},
-                {"departmentId": "2", "name": "Deli"}
+                {"departmentId": "2", "name": "Deli"},
             ],
             "hours": {
                 "monday": {"open": "08:00", "close": "22:00", "open24": False},
@@ -238,9 +219,9 @@ class TestLocation(unittest.TestCase):
                 "thursday": {"open": "08:00", "close": "22:00", "open24": False},
                 "friday": {"open": "08:00", "close": "23:00", "open24": False},
                 "saturday": {"open": "08:00", "close": "23:00", "open24": False},
-                "sunday": {"open": "09:00", "close": "21:00", "open24": False}
+                "sunday": {"open": "09:00", "close": "21:00", "open24": False},
             },
-            "distance": 2.5
+            "distance": 2.5,
         }
 
     def test_from_dict_complete(self):
@@ -280,14 +261,9 @@ class TestLocation(unittest.TestCase):
                 "addressLine1": "1234 Main St",
                 "city": "Cincinnati",
                 "state": "OH",
-                "zipCode": "45202"
+                "zipCode": "45202",
             },
-            "geolocation": {
-                "latLng": {
-                    "latitude": 39.1031,
-                    "longitude": -84.5120
-                }
-            }
+            "geolocation": {"latLng": {"latitude": 39.1031, "longitude": -84.5120}},
         }
 
         location = Location.from_dict(minimal_dict)
@@ -339,5 +315,50 @@ class TestLocation(unittest.TestCase):
         self.assertEqual(str(location), "Test Kroger Store - Cincinnati, OH")
 
 
-if __name__ == '__main__':
+class TestConvertLocationsDictToObjects(unittest.TestCase):
+    """Tests for the convert_locations_dict_to_objects function."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.location_dict = {
+            "locationId": "12345",
+            "name": "Test Kroger Store",
+            "chain": "KROGER",
+            "address": {
+                "addressLine1": "1234 Main St",
+                "city": "Cincinnati",
+                "state": "OH",
+                "zipCode": "45202",
+            },
+            "geolocation": {"latLng": {"latitude": 39.1031, "longitude": -84.5120}},
+        }
+
+    def test_convert_multiple_locations(self):
+        """Test converting a dictionary with multiple locations."""
+        locations_dict = {"data": [self.location_dict, self.location_dict]}
+
+        locations = convert_locations_dict_to_objects(locations_dict)
+
+        self.assertEqual(len(locations), 2)
+        self.assertIsInstance(locations[0], Location)
+        self.assertEqual(locations[0].location_id, "12345")
+
+    def test_convert_empty_data(self):
+        """Test converting a dictionary with empty data."""
+        locations_dict = {"data": []}
+
+        locations = convert_locations_dict_to_objects(locations_dict)
+
+        self.assertEqual(len(locations), 0)
+
+    def test_convert_no_data_key(self):
+        """Test converting a dictionary without a data key."""
+        locations_dict = {"meta": {"count": 0}}
+
+        locations = convert_locations_dict_to_objects(locations_dict)
+
+        self.assertEqual(len(locations), 0)
+
+
+if __name__ == "__main__":
     unittest.main()

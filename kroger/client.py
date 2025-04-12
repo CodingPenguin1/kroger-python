@@ -3,7 +3,7 @@ import requests
 from typing import Dict, Any, Optional, List, Union
 import time
 from dataclasses import dataclass
-from kroger.location import Location
+from kroger.location import Location, convert_locations_dict_to_objects
 
 
 @dataclass
@@ -47,8 +47,7 @@ class KrogerClient:
             The Basic authorization header value
         """
         credentials = f"{self.client_id}:{self.client_secret}"
-        encoded_credentials = base64.b64encode(
-            credentials.encode("utf-8")).decode("utf-8")
+        encoded_credentials = base64.b64encode(credentials.encode("utf-8")).decode("utf-8")
         return f"Basic {encoded_credentials}"
 
     def get_token(self, scopes: List[str]) -> KrogerToken:
@@ -128,8 +127,7 @@ class KrogerClient:
         """
         token = self.ensure_valid_token(scopes)
 
-        headers = {"Accept": "application/json",
-                   "Authorization": f"Bearer {token.access_token}"}
+        headers = {"Accept": "application/json", "Authorization": f"Bearer {token.access_token}"}
 
         url = f"{self.BASE_URL}/{endpoint.lstrip('/')}"
 
@@ -146,23 +144,30 @@ class KrogerClient:
         return response.json()
 
     def get_locations(
-        self,
-        filter_params: Optional[Dict[str, Union[str, int, float]]] = None
+        self, filter_params: Optional[Dict[str, Union[str, int, float]]] = None
     ) -> Dict[str, Any]:
         """
         Get store locations from the Kroger API.
 
+        See parameters here: https://developer.kroger.com/api-products/api/location-api-public#tag/Locations/operation/SearchLocations
+
         Args:
             filter_params: Optional filtering parameters such as:
-                - 'chain': Filter by chain (e.g. 'KROGER', 'FRED_MEYER')
-                - 'zip': Filter by zipcode
-                - 'radiusInMiles': Search radius in miles
-                - 'lat' & 'lon': Latitude and longitude coordinates
-                - 'limit': Maximum number of results to return
+                - 'filter.zipCode.near': Filter by zipcode
+                - 'filter.lat.near' & 'filter.lon.near': Latitude and longitude coordinates
+                - 'filter.radiusInMiles': Search radius in miles
+                - 'filter.chain': Filter by chain (e.g. 'KROGER', 'FRED_MEYER')
+                - 'filter.limit': Maximum number of results to return
 
         Returns:
             JSON response containing location information
         """
+        # TODO: better key checking
+        # for key in filter_params:
+        #     if not key.startswith("filter."):
+        #         raise ValueError(f"Invalid filter parameter: {key}")
+        print(filter_params)
+
         return self.make_request(
             method="GET",
             endpoint="/locations",
@@ -189,9 +194,9 @@ class KrogerClient:
     def search_locations_by_zip(
         self,
         zip_code: str,
-        radius_miles: float = 10.0,
+        radius_miles: int = 10,
         limit: int = 20,
-        chain: Optional[str] = None
+        chain: Optional[str] = None,
     ) -> List[Location]:
         """
         Search for store locations by ZIP code.
@@ -206,17 +211,16 @@ class KrogerClient:
             List of Location objects
         """
         params = {
-            "zip": zip_code,
-            "radiusInMiles": radius_miles,
-            "limit": limit
+            "filter.zipCode.near": zip_code,
+            "filter.radiusInMiles": radius_miles,
+            "filter.limit": limit,
         }
 
         if chain:
-            params["chain"] = chain
+            params["filter.chain"] = chain
 
         response = self.get_locations(params)
 
-        from kroger.location import convert_locations_dict_to_objects
         return convert_locations_dict_to_objects(response)
 
     def search_locations_by_coordinates(
@@ -225,7 +229,7 @@ class KrogerClient:
         longitude: float,
         radius_miles: float = 10.0,
         limit: int = 20,
-        chain: Optional[str] = None
+        chain: Optional[str] = None,
     ) -> List[Location]:
         """
         Search for store locations by geographical coordinates.
@@ -241,16 +245,17 @@ class KrogerClient:
             List of Location objects
         """
         params = {
-            "lat": latitude,
-            "lon": longitude,
-            "radiusInMiles": radius_miles,
-            "limit": limit
+            "filter.lat.near": latitude,
+            "filter.lon.near": longitude,
+            "filter.radiusInMiles": radius_miles,
+            "filter.limit": limit,
         }
 
         if chain:
-            params["chain"] = chain
+            params["filter.chain"] = chain
 
         response = self.get_locations(params)
 
         from kroger.location import convert_locations_dict_to_objects
+
         return convert_locations_dict_to_objects(response)
