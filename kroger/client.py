@@ -163,10 +163,9 @@ class KrogerClient:
             JSON response containing location information
         """
         # TODO: better key checking
-        # for key in filter_params:
-        #     if not key.startswith("filter."):
-        #         raise ValueError(f"Invalid filter parameter: {key}")
-        print(filter_params)
+        for key in filter_params:
+            if not key.startswith("filter."):
+                raise ValueError(f"Invalid filter parameter: {key}")
 
         return self.make_request(
             method="GET",
