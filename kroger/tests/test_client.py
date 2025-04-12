@@ -14,7 +14,7 @@ class TestKrogerClient(unittest.TestCase):
         self.client_secret = "test_client_secret"
         self.client = KrogerClient(self.client_id, self.client_secret)
 
-    @patch('kroger.client.requests.post')
+    @patch("kroger.client.requests.post")
     def test_get_token(self, mock_post):
         """Test getting an access token."""
         # Mock the API response
@@ -22,7 +22,7 @@ class TestKrogerClient(unittest.TestCase):
         mock_response.json.return_value = {
             "access_token": "test_access_token",
             "expires_in": 1800,
-            "token_type": "Bearer"
+            "token_type": "Bearer",
         }
         mock_post.return_value = mock_response
 
@@ -42,8 +42,8 @@ class TestKrogerClient(unittest.TestCase):
         self.assertEqual(kwargs["data"]["grant_type"], "client_credentials")
         self.assertEqual(kwargs["data"]["scope"], "product.compact")
 
-    @patch('kroger.client.KrogerClient.ensure_valid_token')
-    @patch('kroger.client.requests.request')
+    @patch("kroger.client.KrogerClient.ensure_valid_token")
+    @patch("kroger.client.requests.request")
     def test_make_request(self, mock_request, mock_ensure_token):
         """Test making an API request."""
         # Mock the token and response
@@ -60,7 +60,7 @@ class TestKrogerClient(unittest.TestCase):
             method="GET",
             endpoint="/some-endpoint",
             scopes=["product.compact"],
-            params={"param": "value"}
+            params={"param": "value"},
         )
 
         # Assertions
@@ -70,20 +70,20 @@ class TestKrogerClient(unittest.TestCase):
         mock_request.assert_called_once()
         args, kwargs = mock_request.call_args
         self.assertEqual(kwargs["method"], "GET")
-        self.assertEqual(
-            kwargs["url"], "https://api.kroger.com/v1/some-endpoint")
-        self.assertEqual(kwargs["headers"]["Authorization"],
-                         "Bearer test_access_token")
+        self.assertEqual(kwargs["url"], "https://api.kroger.com/v1/some-endpoint")
+        self.assertEqual(kwargs["headers"]["Authorization"], "Bearer test_access_token")
         self.assertEqual(kwargs["params"], {"param": "value"})
 
-    @patch('kroger.client.KrogerClient.make_request')
+    @patch("kroger.client.KrogerClient.make_request")
     def test_get_locations(self, mock_make_request):
         """Test getting store locations."""
         # Mock the response
         mock_make_request.return_value = {"data": [{"locationId": "12345"}]}
 
         # Call the method
-        result = self.client.get_locations({"zip": "12345"})
+        result = self.client.get_locations(
+            {"filter.zipCode.near": "12345"}
+        )  # Updated parameter key
 
         # Assertions
         self.assertEqual(result, {"data": [{"locationId": "12345"}]})
@@ -93,9 +93,9 @@ class TestKrogerClient(unittest.TestCase):
             method="GET",
             endpoint="/locations",
             scopes=["product.compact"],
-            params={"zip": "12345"}
+            params={"filter.zipCode.near": "12345"},  # Updated parameter key
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
