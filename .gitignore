@@ -172,3 +172,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+# I do jank testing sometimes :)
+scratchpad_tests.py
