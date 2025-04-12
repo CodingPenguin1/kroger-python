@@ -1,0 +1,16 @@
+# HTTP requests library used for API calls
+requests>=2.28.0
+
+# Type hinting support for Python <3.9 (optional for newer Python versions)
+typing-extensions>=4.0.0; python_version < "3.9"
+
+# Testing dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
+coverage>=6.0.0
+
+# Development dependencies
+black>=23.0.0  # Code formatting
+isort>=5.10.0  # Import sorting
+flake8>=5.0.0  # Linting
+mypy>=1.0.0    # Type checking
