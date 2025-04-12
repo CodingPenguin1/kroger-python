@@ -23,9 +23,9 @@ dev_requirements = [
 
 setup(
     name="kroger-python",
-    version="0.1.0",  # Initial version, update as appropriate
-    author="Your Name",  # Replace with your name
-    author_email="your.email@example.com",  # Replace with your email
+    version="0.1.1",  # Initial version, update as appropriate
+    author="Ryan Slater",  # Replace with your name
+    author_email="ryan.slater.2@gmail.com",  # Replace with your email
     description="Python client for the Kroger API",
     long_description=long_description,
     long_description_content_type="text/markdown",
