@@ -6,6 +6,7 @@ from datetime import datetime, time
 @dataclass
 class LocationAddress:
     """Represents a location's address."""
+
     address_line1: str
     address_line2: Optional[str]
     city: str
@@ -22,28 +23,27 @@ class LocationAddress:
             city=address_dict.get("city", ""),
             state=address_dict.get("state", ""),
             zip_code=address_dict.get("zipCode", ""),
-            county=address_dict.get("county", "")
+            county=address_dict.get("county", ""),
         )
 
 
 @dataclass
 class LocationDepartment:
     """Represents a department within a store location."""
+
     department_id: str
     name: str
 
     @classmethod
     def from_dict(cls, dept_dict: Dict[str, Any]) -> "LocationDepartment":
         """Create a LocationDepartment instance from a department dictionary."""
-        return cls(
-            department_id=dept_dict.get("departmentId", ""),
-            name=dept_dict.get("name", "")
-        )
+        return cls(department_id=dept_dict.get("departmentId", ""), name=dept_dict.get("name", ""))
 
 
 @dataclass
 class DayHours:
     """Represents hours for a specific day."""
+
     open: Optional[time]
     close: Optional[time]
     open24: bool
@@ -69,16 +69,13 @@ class DayHours:
             except (ValueError, TypeError):
                 pass
 
-        return cls(
-            open=open_time,
-            close=close_time,
-            open24=hours_dict.get("open24", False)
-        )
+        return cls(open=open_time, close=close_time, open24=hours_dict.get("open24", False))
 
 
 @dataclass
 class HoursOfOperation:
     """Represents hours of operation for a location."""
+
     monday: Optional[DayHours]
     tuesday: Optional[DayHours]
     wednesday: Optional[DayHours]
@@ -97,7 +94,7 @@ class HoursOfOperation:
             "thursday": None,
             "friday": None,
             "saturday": None,
-            "sunday": None
+            "sunday": None,
         }
 
         for day in days.keys():
@@ -110,6 +107,7 @@ class HoursOfOperation:
 @dataclass
 class GeolocationCoordinates:
     """Represents the latitude and longitude coordinates of a location."""
+
     latitude: float
     longitude: float
 
@@ -148,7 +146,7 @@ class Location:
         phone: str = "",
         departments: List[LocationDepartment] = None,
         hours: Optional[HoursOfOperation] = None,
-        distance: Optional[float] = None
+        distance: Optional[float] = None,
     ):
         """
         Initialize a Location object.
@@ -186,9 +184,7 @@ class Location:
             departments.append(LocationDepartment.from_dict(dept))
 
         # Process geolocation
-        geolocation = GeolocationCoordinates.from_dict(
-            location_dict.get("geolocation", {}).get("latLng", {})
-        )
+        geolocation = GeolocationCoordinates.from_dict(location_dict.get("geolocation", {}))
 
         # Process hours
         hours = None
@@ -204,7 +200,7 @@ class Location:
             phone=location_dict.get("phone", ""),
             departments=departments,
             hours=hours,
-            distance=location_dict.get("distance", None)
+            distance=location_dict.get("distance", None),
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -217,14 +213,14 @@ class Location:
                 "address_line1": self.address.address_line1,
                 "city": self.address.city,
                 "state": self.address.state,
-                "zip_code": self.address.zip_code
+                "zip_code": self.address.zip_code,
             },
             "phone": self.phone,
             "coordinates": {
                 "latitude": self.geolocation_coordinates.latitude,
-                "longitude": self.geolocation_coordinates.longitude
+                "longitude": self.geolocation_coordinates.longitude,
             },
-            "departments": [{"name": dept.name} for dept in self.departments]
+            "departments": [{"name": dept.name} for dept in self.departments],
         }
 
         if self.address.address_line2:
@@ -259,8 +255,7 @@ class Location:
         lines.append(f"  {self.address.address_line1}")
         if self.address.address_line2:
             lines.append(f"  {self.address.address_line2}")
-        lines.append(
-            f"  {self.address.city}, {self.address.state} {self.address.zip_code}")
+        lines.append(f"  {self.address.city}, {self.address.state} {self.address.zip_code}")
 
         if self.phone:
             lines.append(f"Phone: {self.phone}")
@@ -277,8 +272,7 @@ class Location:
         # Hours
         if self.hours:
             lines.append("Hours:")
-            days = ["monday", "tuesday", "wednesday",
-                    "thursday", "friday", "saturday", "sunday"]
+            days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
             for day in days:
                 day_hours = getattr(self.hours, day)
                 if day_hours:
@@ -287,11 +281,29 @@ class Location:
                     elif day_hours.open and day_hours.close:
                         open_str = day_hours.open.strftime("%I:%M %p")
                         close_str = day_hours.close.strftime("%I:%M %p")
-                        lines.append(
-                            f"  {day.capitalize()}: {open_str} - {close_str}")
+                        lines.append(f"  {day.capitalize()}: {open_str} - {close_str}")
                     else:
                         lines.append(f"  {day.capitalize()}: Closed")
 
         lines.append(f"{separator}")
 
         return "\n".join(lines)
+
+
+def convert_locations_dict_to_objects(locations_dict: Dict[str, Any]) -> List[Location]:
+    """
+    Convert a locations API response dictionary to a list of Location objects.
+
+    Args:
+        locations_dict: Dictionary from Kroger API response
+
+    Returns:
+        List of Location objects
+    """
+    locations = []
+
+    if "data" in locations_dict:
+        for location_data in locations_dict["data"]:
+            locations.append(Location.from_dict(location_data))
+
+    return locations
