@@ -175,4 +175,4 @@ cython_debug/
 
 
 # I do jank testing sometimes :)
-scratchpad_tests.py
+python/scripts/
