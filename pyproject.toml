@@ -18,3 +18,8 @@ packages = ["python/kroger_python"]
 
 [tool.uv.sources]
 kroger_python = { path = "./python/kroger_python", editable = true }
+
+[dependency-groups]
+dev = [
+    "python-dotenv>=1.2.1",
+]
