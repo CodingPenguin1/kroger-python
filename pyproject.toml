@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kroger-python"
+version = "0.2.0"
+description = "Python wrapper for the Kroger API"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic>=2.12.5",
+    "requests>=2.32.5",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["python/kroger_python"]
+
+[tool.uv.sources]
+kroger_python = { path = "./python/kroger_python", editable = true }
+
+[dependency-groups]
+dev = [
+    "python-dotenv>=1.2.1",
+]
